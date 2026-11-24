@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { CLOSING_TEXT, PHASE_TABLE, UI_TABLE, completeTurn, findingsSpeech, newAttempt, planTurn, traineeAnswers, uiReducer, type UiEvent, type UiStatus } from '../src/lib/viva'
+import { PHASE_TABLE, examinerLine, UI_TABLE, completeTurn, findingsSpeech, newAttempt, planTurn, traineeAnswers, uiReducer, type UiEvent, type UiStatus } from '../src/lib/viva'
 
 describe('planTurn (phase transitions)', () => {
   it('a finding request reveals and stays in examining', () => {
@@ -13,9 +13,48 @@ describe('planTurn (phase transitions)', () => {
     expect(p).toEqual({ action: 'ask_followup', next: 'followup' })
   })
 
-  it('an answer to the follow-up closes the viva, even one mentioning exam words', () => {
-    expect(planTurn('followup', 'I would check for a kidney problem and potassium')).toEqual({ action: 'close', next: 'done' })
-    expect(planTurn('followup', 'I would check the blood pressure and give acetazolamide')).toEqual({ action: 'close', next: 'done' })
+  it('an answer to the follow-up asks if there is anything else; it does NOT end the viva', () => {
+    expect(planTurn('followup', 'I would check for a kidney problem and potassium')).toEqual({ action: 'offer_wrapup', next: 'wrapup' })
+    expect(planTurn('followup', 'I would check the blood pressure and give acetazolamide')).toEqual({ action: 'offer_wrapup', next: 'wrapup' })
+  })
+
+  it('a terse reply to the follow-up is accepted as the answer', () => {
+    expect(planTurn('followup', 'sulfonamide allergy and kidney function')).toEqual({ action: 'offer_wrapup', next: 'wrapup' })
+  })
+
+  describe('wrapup: the viva ends only when the trainee says they are finished', () => {
+    it.each(["that's all", 'no', 'No thanks', "I'm done", 'nothing else', 'finish', "that's all, thank you"])('"%s" ends it', text => {
+      expect(planTurn('wrapup', text)).toEqual({ action: 'close', next: 'done' })
+    })
+
+    it.each([
+      'no allergy to sulfonamides', // starts with "no" but is a clinical statement
+      'I would also stop the chlorphenamine',
+      'nothing else makes the pressure fall faster than iridotomy',
+    ])('"%s" does not end it; it is kept as part of the answer', text => {
+      expect(planTurn('wrapup', text)).toEqual({ action: 'note', next: 'wrapup' })
+    })
+
+    it('findings can still be requested', () => {
+      expect(planTurn('wrapup', 'what is the blood pressure')).toMatchObject({ action: 'reveal', next: 'wrapup' })
+    })
+
+    it('a garbled phrase asks again instead of ending', () => {
+      expect(planTurn('wrapup', 'is there an r a p k')).toEqual({ action: 'clarify', next: 'wrapup' })
+    })
+
+    it('"that\'s all" is not treated as finishing outside the wrap-up stage', () => {
+      expect(planTurn('examining', "that's all").action).not.toBe('close')
+      expect(planTurn('followup', "that's all").action).not.toBe('close')
+    })
+  })
+
+  it.each([
+    'is there an r a p k', // garbled "RAPD"
+    'wish you blorp in each eye', // garbled finding request: mentions an eye
+    'okay',
+  ])('a garbled request during the follow-up does not end the viva: "%s"', text => {
+    expect(planTurn('followup', text)).toEqual({ action: 'clarify', next: 'followup' })
   })
 
   it('a finding request during the follow-up is answered and does not use up the follow-up', () => {
@@ -44,20 +83,20 @@ describe('planTurn (phase transitions)', () => {
   })
 
   it('table is total: every phase defines every utterance kind', () => {
-    for (const phase of ['examining', 'followup', 'done'] as const) {
-      expect(Object.keys(PHASE_TABLE[phase]).sort()).toEqual(['answer', 'findings', 'unclear'])
+    for (const phase of ['examining', 'followup', 'wrapup', 'done'] as const) {
+      expect(Object.keys(PHASE_TABLE[phase]).sort()).toEqual(['answer', 'done', 'findings', 'unclear'])
     }
   })
 })
 
 describe('completeTurn (full flow, no browser)', () => {
-  it('runs finding -> unavailable finding -> answer -> follow-up reply -> done', () => {
+  it('runs finding -> unavailable finding -> answer -> follow-up reply -> wrap-up -> done', () => {
     let a = newAttempt('user-1', 1000)
     expect(a.transcript).toHaveLength(1)
 
     const turn = (text: string, examinerText?: string, meta = {}) => {
       const plan = planTurn(a.phase, text)
-      const say = examinerText ?? (plan.action === 'reveal' ? findingsSpeech(plan.findings) : plan.action === 'close' ? CLOSING_TEXT : 'Q?')
+      const say = examinerText ?? (plan.action === 'reveal' ? findingsSpeech(plan.findings) : plan.action === 'ignore' || plan.action === 'ask_followup' ? 'Q?' : examinerLine(plan.action))
       a = completeTurn(a, plan, text, say, 2000, meta)
     }
 
@@ -76,9 +115,21 @@ describe('completeTurn (full flow, no browser)', () => {
     expect(a.transcript.at(-1)).toMatchObject({ kind: 'followup', serverMs: 800 })
 
     turn('I would check for kidney problems')
+    expect(a.phase).toBe('wrapup') // not finished yet
+    expect(a.transcript.at(-1)?.kind).toBe('wrapup')
+
+    turn('I would also stop the chlorphenamine') // added during wrap-up: kept as part of the answer
+    expect(a.phase).toBe('wrapup')
+
+    turn("that's all")
     expect(a.phase).toBe('done')
     expect(a.transcript.at(-1)?.kind).toBe('closing')
-    expect(traineeAnswers(a)).toEqual(['I think this is angle closure, I would give acetazolamide', 'I would check for kidney problems'])
+    expect(a.transcript.at(-2)).toMatchObject({ role: 'trainee', kind: 'system' }) // "that's all" is not an answer
+    expect(traineeAnswers(a)).toEqual([
+      'I think this is angle closure, I would give acetazolamide',
+      'I would check for kidney problems',
+      'I would also stop the chlorphenamine',
+    ])
   })
 
   it('does not mutate the previous attempt', () => {
@@ -99,6 +150,18 @@ describe('uiReducer (who may speak)', () => {
 
   it('happy path: idle -> listening -> thinking -> speaking -> idle', () => {
     expect(run('idle', { type: 'LISTEN' }, { type: 'THINK' }, { type: 'SPEAK' }, { type: 'SETTLE', done: false })).toBe('idle')
+  })
+
+  it('heard speech is shown for checking before the examiner acts', () => {
+    expect(run('idle', { type: 'LISTEN' }, { type: 'CONFIRM' })).toBe('confirming')
+    expect(run('confirming', { type: 'THINK' })).toBe('thinking') // sent
+    expect(run('confirming', { type: 'LISTEN' })).toBe('listening') // say again
+    expect(run('confirming', { type: 'CANCEL' })).toBe('idle')
+  })
+
+  it('cannot jump to checking unless the mic was listening', () => {
+    expect(run('idle', { type: 'CONFIRM' })).toBe('idle')
+    expect(run('speaking', { type: 'CONFIRM' })).toBe('speaking')
   })
 
   it('settling after the final line goes to done, not idle', () => {

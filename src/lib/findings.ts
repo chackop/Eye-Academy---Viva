@@ -1,12 +1,10 @@
 import { CONFIG } from './config'
 import { RULES } from './case-rules'
 import { CASE, FINDINGS, type Finding } from './findings-data'
+import { norm } from './phrase-match'
 
 export { CASE, FINDINGS, type Finding }
 
-function norm(s: string) {
-  return s.toLowerCase().replace(/[^a-z0-9&/ ]+/g, ' ').replace(/\s+/g, ' ').trim()
-}
 
 /** Which eyes did the trainee name? Unnamed = both, so a lookup can never silently return the wrong eye. */
 function eyesMentioned(t: string): ('right' | 'left')[] {
@@ -20,19 +18,30 @@ function eyesMentioned(t: string): ('right' | 'left')[] {
 export type Intent =
   | { kind: 'findings'; findings: Finding[] }
   | { kind: 'answer' }
-  | { kind: 'unclear' } // sounds like a finding request but names nothing we recognise (often a mis-heard word)
+  | { kind: 'done' } // "that's all": only recognised when the examiner has asked if there is anything else
+  | { kind: 'unclear' } // names no finding and does not sound like an answer (often a mis-heard word)
 
-/** Short, request-shaped, and not an answer: likely a finding request the recogniser garbled. */
-function looksLikeRequest(t: string): boolean {
-  if (RULES.answerCue.test(t)) return false
-  return RULES.requestCue.test(t) || (t.split(' ').length <= 5 && /\b(each|both|right|left) eyes?\b/.test(t))
+/**
+ * An utterance counts as the trainee's answer only if it positively looks like one: answer wording, clinical terms,
+ * or a long statement that is not a question. Speech recognition garbles words often, so a short phrase we do not
+ * understand must NOT be taken as their diagnosis; it is 'unclear' and the examiner asks again.
+ */
+function looksLikeAnswer(t: string): boolean {
+  if (RULES.answerCue.test(t) || RULES.answerTerms.test(t)) return true
+  return t.split(' ').length >= CONFIG.matching.longAnswerMinWords && !RULES.requestCue.test(t)
 }
 
-export function classifyUtterance(raw: string): Intent {
+/** `expectingAnswer`: the examiner has just asked a question, so a terse reply that is not shaped like a request is the answer. */
+export function classifyUtterance(raw: string, opts: { expectingAnswer?: boolean; wrappingUp?: boolean } = {}): Intent {
   const t = norm(raw)
-  const topics = RULES.topics.filter(x => x.re.test(t))
-  if (!topics.length) return looksLikeRequest(t) ? { kind: 'unclear' } : { kind: 'answer' }
-  const isAnswer = RULES.answerCue.test(t)
+  // Whole-utterance match, so "no allergy to sulfonamides" is an answer, not the end.
+  if (opts.wrappingUp && RULES.doneCue.test(t)) return { kind: 'done' }
+  const topics = RULES.topics.filter(x => x.test(t))
+  if (!topics.length) {
+    const terseReply = !!opts.expectingAnswer && t.split(' ').length >= 3 && !RULES.requestCue.test(t) && !/\b(each|both|right|left) eyes?\b/.test(t)
+    return looksLikeAnswer(t) || terseReply ? { kind: 'answer' } : { kind: 'unclear' }
+  }
+  const isAnswer = looksLikeAnswer(t) // answer wording, or clinical terms such as "iridotomy"
   const isRequest = RULES.requestCue.test(t) || t.split(' ').length <= CONFIG.matching.shortRequestMaxWords
   // "I think it's angle closure so I'd get gonioscopy" is an answer; "can I have gonioscopy" is a request.
   if (isAnswer && !isRequest) return { kind: 'answer' }

@@ -1,15 +1,9 @@
+import { z } from 'zod'
 import caseData from '../../data/case.json'
+import { findingSchema } from './schema'
 
-export type Finding = {
-  id: string
-  eye: 'right' | 'left' | 'both' | null
-  label: string
-  value: string | number | null
-  unit: string | null
-  method: string | null
-  available: boolean
-  unavailable_reason?: string
-}
+export type { Finding } from './schema'
 
 export const CASE = caseData
-export const FINDINGS = caseData.findings as Finding[]
+// Fail loudly at startup if the case file's findings are not in the shape the app relies on.
+export const FINDINGS = z.array(findingSchema).parse(caseData.findings)

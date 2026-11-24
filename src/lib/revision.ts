@@ -22,6 +22,12 @@ export function verifyModelReply(raw: string, hits: Hit[], retrieved: Revision['
   return null
 }
 
+/** Cut at a word boundary, never mid-word. */
+export function shorten(s: string, max: number): string {
+  if (s.length <= max) return s
+  return s.slice(0, s.lastIndexOf(' ', max)).trimEnd() + '…'
+}
+
 export async function buildRevision(complete: Complete, answers: string[]): Promise<Revision> {
   const answer = answers.join(' ').trim()
   const missed = missedPoints(answer)
@@ -46,6 +52,6 @@ export async function buildRevision(complete: Complete, answers: string[]): Prom
 
   // No key, or the model's reply failed verification: extractive point straight from the top passage.
   const top = hits[0].chunk
-  const excerpt = top.text.split(/(?<=\.)\s/).slice(0, 2).join(' ').slice(0, 300)
+  const excerpt = shorten(top.text.split(/(?<=\.)\s/).slice(0, 2).join(' '), 300)
   return { supported: true, point: `Revise this section of the note${missed[0] ? ` (you didn't mention: ${missed[0].toLowerCase()})` : ''}.`, page: top.page, excerpt, passageId: top.id, source: 'extractive', retrieved }
 }

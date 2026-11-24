@@ -2,67 +2,162 @@
  "topics": [
   {
    "prefix": "va_",
-   "pattern": "\\b(visual acuity|visual equity|visual acuteness|a cuity|acuity|vision|snellen|va)\\b"
+   "phrases": [
+    "visual acuity",
+    "visual equity",
+    "visual acuteness",
+    "a cuity",
+    "acuity",
+    "equity",
+    "liquidity",
+    "vision",
+    "snellen",
+    "va"
+   ]
   },
   {
    "prefix": "iop_",
-   "pattern": "\\b(iop|i o p|intra ?ocular pressures?|eye pressures?|(?<!blood )pressures?|tonometry|applanation|goldmann)\\b"
+   "phrases": [
+    "iop",
+    "i o p",
+    "intraocular pressure",
+    "intra ocular pressure",
+    "eye pressure",
+    "pressure",
+    "tonometry",
+    "applanation",
+    "goldmann"
+   ],
+   "excludes": [
+    "blood pressure"
+   ]
   },
   {
    "prefix": "conj_",
-   "pattern": "\\b(conjunctiva|conjunctival|redness|injection|ciliary flush)\\b"
+   "phrases": [
+    "conjunctiva",
+    "conjunctival",
+    "redness",
+    "injection",
+    "ciliary flush"
+   ]
   },
   {
    "prefix": "cornea_",
-   "pattern": "\\b(cornea|corneal|corneas)\\b"
+   "phrases": [
+    "cornea",
+    "corneal"
+   ]
   },
   {
    "prefix": "ac_",
-   "pattern": "\\b(anterior chamber|chamber depth|van herick|ac depth)\\b"
+   "phrases": [
+    "anterior chamber",
+    "chamber depth",
+    "van herick",
+    "ac depth"
+   ]
   },
   {
    "prefix": "pupil_",
-   "pattern": "\\b(pupils?)\\b"
+   "phrases": [
+    "pupil"
+   ]
   },
   {
    "prefix": "rapd",
-   "pattern": "\\b(rapd|afferent|swinging (light|torch))\\b"
+   "phrases": [
+    "rapd",
+    "r a p d",
+    "r a p t",
+    "rapid",
+    "afferent",
+    "swinging light",
+    "swinging torch"
+   ]
   },
   {
    "prefix": "lens_",
-   "pattern": "\\b(lens|lenses|cataract)\\b"
+   "phrases": [
+    "lens",
+    "lenses",
+    "cataract"
+   ]
   },
   {
    "prefix": "gonio_",
-   "pattern": "\\b(gonioscopy|gonio ?scop(y|e)|gonna scopy|gonio|drainage angles?|angle assessment)\\b"
+   "phrases": [
+    "gonioscopy",
+    "gonio scopy",
+    "gonio scope",
+    "gonna scopy",
+    "gonio",
+    "drainage angle",
+    "angle assessment"
+   ]
   },
   {
    "prefix": "fundus_",
-   "pattern": "\\b(fundus|fundi|optic disc|optic discs|the disc|discs|optic nerve|cupping|cup to disc|macula)\\b"
+   "phrases": [
+    "fundus",
+    "fundi",
+    "optic disc",
+    "disc",
+    "optic nerve",
+    "cupping",
+    "cup to disc",
+    "macula"
+   ]
   },
   {
    "prefix": "refraction",
-   "pattern": "\\b(refraction|refractive|prescription|glasses|spectacles|focimetry)\\b"
+   "phrases": [
+    "refraction",
+    "refractive",
+    "prescription",
+    "glasses",
+    "spectacles",
+    "focimetry"
+   ]
   },
   {
    "prefix": "axial_length",
-   "pattern": "\\b(axial length|biometry)\\b"
+   "phrases": [
+    "axial length",
+    "biometry"
+   ]
   },
   {
    "prefix": "oct",
-   "pattern": "\\b(oct|optical coherence)\\b"
+   "phrases": [
+    "oct",
+    "optical coherence"
+   ]
   },
   {
    "prefix": "bp",
-   "pattern": "\\b(blood pressure|bp)\\b"
+   "phrases": [
+    "blood pressure",
+    "bp"
+   ]
   },
   {
    "prefix": "u_and_e",
-   "pattern": "\\b(u ?(and|&) ?es?|urea|electrolytes|bloods|blood tests?|renal function)\\b"
+   "phrases": [
+    "u and e",
+    "u and es",
+    "u & e",
+    "u & es",
+    "urea",
+    "electrolytes",
+    "bloods",
+    "blood test",
+    "renal function"
+   ]
   }
  ],
- "answerCue": "\\b(diagnos\\w*|i think|i would|i'd|i'll|i will|treat\\w*|manage\\w*|prescrib\\w*|probably|likely|this is|my impression|i suspect|then i|start|give|stop)\\b",
- "requestCue": "\\b(can i|could i|may i|what('s| is| are| was| about)|show me|tell me|any|how (is|are|high)|do you have|let me|i('d| would) like|measure|examine|look at)\\b",
+ "answerCue": "\\b(diagnos\\w*|i think|i would|i'd|i'll|i will|treat\\w*|manage\\w*|prescrib\\w*|probably|likely|this is|my impression|i suspect|then i|start|give|stop|don t know|not sure|no idea)\\b",
+ "requestCue": "\\b(can i|could i|may i|what('s| is| are| was| about)|show me|tell me|any|is there|are there|do they have|has she|how (is|are|high)|do you have|let me|i('d| would) like|measure|examine|look at)\\b",
  "rubric": [
   {
    "key": "Lower the pressure with topical and systemic agents (timolol, apraclonidine/brimonidine, pilocarpine once pressure falls, acetazolamide)",
@@ -107,5 +202,7 @@
    }
   ],
   "defaultIdea": 2
- }
+ },
+ "answerTerms": "\\b(angle closure|closure|glaucoma|acute|attack|iridotomy|iridoplasty|laser|timolol|apraclonidine|brimonidine|acetazolamide|diamox|pilocarpine|mannitol|glycerol|steroid|prednisolone|analgesi\\w*|antiemetic|chlorphenamine|antihistamine|drops|tablets?)\\b",
+ "doneCue": "^(no|nope|nothing|nothing else|nothing more|that s all|that is all|that s it|that is it|that s everything|that will be all|i m done|i am done|i have nothing else|i have nothing to add|all done|done|finish|finished|end|no thanks|no thank you)( thank you| thanks| please| for now| doctor)?$"
 }

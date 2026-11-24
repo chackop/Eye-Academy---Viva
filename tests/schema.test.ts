@@ -16,6 +16,10 @@ describe('attempt schema', () => {
     expect(parseAttempt(JSON.parse(JSON.stringify(a)))).toEqual(a)
   })
 
+  it('accepts the wrapup phase', () => {
+    expect(parseAttempt({ ...newAttempt('u', 1), phase: 'wrapup' }).phase).toBe('wrapup')
+  })
+
   it('migrates attempts saved before versioning', () => {
     const { schemaVersion, ...old } = newAttempt('u1', 1000)
     expect(schemaVersion).toBe(1)
@@ -41,5 +45,18 @@ describe('attempt schema', () => {
 
   it('rejects non-objects', () => {
     expect(() => parseAttempt(null)).toThrow(AttemptCorruptError)
+  })
+})
+
+describe('case findings use the same schema as the app', () => {
+  it('every finding in the case file is valid (this is also checked at startup)', async () => {
+    const { FINDINGS } = await import('../src/lib/findings-data')
+    expect(FINDINGS.length).toBeGreaterThan(10)
+  })
+
+  it('rejects a malformed finding', async () => {
+    const { findingSchema } = await import('../src/lib/schema')
+    expect(findingSchema.safeParse({ id: 'x', eye: 'middle', label: 'l', value: 1, unit: null, method: null, available: true }).success).toBe(false)
+    expect(findingSchema.safeParse({ id: 'x', eye: 'left', label: 'l', value: 1, unit: null, method: null }).success).toBe(false)
   })
 })

@@ -3,7 +3,7 @@ service cloud.firestore {
   match /databases/{database}/documents {
     function validShape(d) {
       return d.schemaVersion == 1
-          && d.phase in ['examining', 'followup', 'done']
+          && d.phase in ['examining', 'followup', 'wrapup', 'done']
           && d.transcript is list
           && d.revealed is list;
     }

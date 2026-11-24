@@ -54,6 +54,8 @@ describe('speech-recognition mishearings', () => {
     ['visual equity in each eye', ['va_right', 'va_left']],
     ['what is the I O P in the left eye', ['iop_left']],
     ['gonna scopy of the right eye', ['gonio_right']],
+    ['wish you liquidity in each eye', ['va_right', 'va_left']], // heard for "visual acuity in each eye"
+    ['is there an r a p t', ['rapd']], // heard for "is there an RAPD"
   ])('"%s"', (text, ids) => {
     expect(findings(text).map(x => x.id)).toEqual(ids)
   })
@@ -61,6 +63,10 @@ describe('speech-recognition mishearings', () => {
   it.each([
     'what is the visual blorp in each eye',
     'show me the glarb',
+    'wish you blorp in each eye',
+    'is there an r a p k',
+    'hello',
+    'okay',
   ])('an unrecognised request is "unclear", not an answer: "%s"', text => {
     expect(classifyUtterance(text).kind).toBe('unclear')
   })
@@ -68,6 +74,8 @@ describe('speech-recognition mishearings', () => {
   it('a real answer is not "unclear"', () => {
     expect(classifyUtterance('I think this is angle closure in the right eye').kind).toBe('answer')
     expect(classifyUtterance('angle closure').kind).toBe('answer')
+    expect(classifyUtterance('timolol and a laser').kind).toBe('answer')
+    expect(classifyUtterance("I don't know").kind).toBe('answer')
   })
 })
 

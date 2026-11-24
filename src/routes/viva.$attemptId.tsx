@@ -7,7 +7,7 @@ import { displayValue, EYE_LABEL, CASE } from '../lib/findings'
 import { listen, speak, speechInputSupported, stopSpeaking } from '../lib/speech'
 import { consumeJustCreated } from '../lib/session'
 import { loadAttempt, saveAttempt } from '../lib/attempts'
-import { CLARIFY_TEXT, CLOSING_TEXT, completeTurn, examinerBusy, findingsSpeech, planTurn, revealedLabels, traineeAnswers, uiReducer, type UiStatus } from '../lib/viva'
+import { completeTurn, examinerBusy, examinerLine, findingsSpeech, planTurn, revealedLabels, traineeAnswers, uiReducer, type UiStatus } from '../lib/viva'
 import { followUpFn, revisionFn } from '../server/examiner'
 import type { Attempt } from '../lib/types'
 
@@ -16,6 +16,7 @@ export const Route = createFileRoute('/viva/$attemptId')({ ssr: false, component
 const STATUS_TEXT: Record<UiStatus, string> = {
   idle: 'Your turn: press the microphone (or type) to speak',
   listening: 'Listening… speak now',
+  confirming: 'Check what I heard: edit it, or it is sent automatically',
   thinking: 'Examiner is thinking…',
   speaking: 'Examiner is speaking: please wait',
   done: 'Viva finished',
@@ -41,6 +42,9 @@ function Viva() {
   const [interim, setInterim] = useState('')
   const [typed, setTyped] = useState('')
   const [autoListen, setAutoListen] = useState(true)
+  const [pending, setPending] = useState<string | null>(null) // recognised speech waiting for the trainee to check it
+  const [msLeft, setMsLeft] = useState(0)
+  const [editing, setEditing] = useState(false)
   const ref = useRef<Attempt | null>(null)
   const recRef = useRef<{ stop: () => void } | null>(null)
   const canSpeak = typeof window !== 'undefined' && speechInputSupported()
@@ -70,12 +74,12 @@ function Viva() {
   const startListening = useCallback(() => {
     if (!canSpeak || ref.current?.phase === 'done') return
     stopSpeaking()
-    setInterim('')
+    setInterim(''); setError('') // a stale mic error from an earlier attempt should not linger
     dispatch({ type: 'LISTEN' })
     let got = false
     recRef.current = listen({
       onInterim: setInterim,
-      onFinal: (t, at) => { got = true; recRef.current?.stop(); handle(t, at) },
+      onFinal: t => { got = true; recRef.current?.stop(); confirm(t) },
       onEnd: () => { if (!got) dispatch({ type: 'MIC_ENDED' }) },
       onError: e => { if (e !== 'no-speech' && e !== 'aborted') setError(MIC_ERRORS[e] ?? `Microphone error (${e}). You can type instead.`) },
     })
@@ -100,7 +104,7 @@ function Viva() {
       else if (plan.action === 'ask_followup') {
         const r = await followUp({ data: { answer: text, revealedLabels: revealedLabels(a0.revealed) } })
         examinerText = r.text; serverMs = r.serverMs
-      } else examinerText = plan.action === 'clarify' ? CLARIFY_TEXT : CLOSING_TEXT
+      } else examinerText = examinerLine(plan.action)
 
       const { latency, ended } = await say(examinerText, t0)
       const next = completeTurn(ref.current!, plan, text, examinerText, Date.now(), { latencyMs: latency ?? undefined, serverMs })
@@ -120,8 +124,26 @@ function Viva() {
     dispatch({ type: 'FINISH' })
   }
 
+  /** Voice input is shown for checking first (a mis-heard word should not become the trainee's answer). */
+  const confirm = (text: string) => {
+    if (CONFIG.speech.confirmMs <= 0) return handle(text, performance.now())
+    setPending(text); setEditing(false); setMsLeft(CONFIG.speech.confirmMs); setInterim('')
+    dispatch({ type: 'CONFIRM' })
+  }
+  // The timer for a voice turn starts here, when the app commits to the text, not while the trainee is checking it.
+  const send = (text: string) => { setPending(null); if (text.trim()) handle(text, performance.now()); else dispatch({ type: 'CANCEL' }) }
+  const retry = () => { setPending(null); startListening() }
+  const cancel = () => { setPending(null); dispatch({ type: 'CANCEL' }) }
+
+  useEffect(() => { // count down unless the trainee is editing
+    if (status !== 'confirming' || pending === null || editing) return
+    const id = setInterval(() => setMsLeft(m => m - 100), 100)
+    return () => clearInterval(id)
+  }, [status, pending, editing])
+  useEffect(() => { if (status === 'confirming' && pending !== null && !editing && msLeft <= 0) send(pending) }, [msLeft]) // eslint-disable-line react-hooks/exhaustive-deps
+
   const endNow = async () => {
-    stopSpeaking(); recRef.current?.stop()
+    setPending(null); stopSpeaking(); recRef.current?.stop()
     await persist({ ...ref.current!, phase: 'done' })
     await finish()
   }
@@ -165,6 +187,18 @@ function Viva() {
               ))}
               {attempt.phase !== 'done' && (
                 <>
+                  {status === 'confirming' && pending !== null ? (
+                    <div style={{ marginTop: 12 }}>
+                      <p className="tiny mute">I heard this. Fix it if it's wrong{!editing && ` · sending in ${Math.ceil(msLeft / 1000)}s`}</p>
+                      <form className="row" onSubmit={e => { e.preventDefault(); send(pending) }}>
+                        <input value={pending} aria-label="What I heard" onFocus={() => setEditing(true)} onChange={e => { setEditing(true); setPending(e.target.value) }} />
+                        <button>Send now</button>
+                        <button type="button" className="ghost" onClick={retry}>🎤 Say again</button>
+                        <button type="button" className="ghost" onClick={cancel}>Cancel</button>
+                      </form>
+                      {!editing && <div className="bar"><span style={{ width: `${Math.max(0, msLeft / CONFIG.speech.confirmMs) * 100}%` }} /></div>}
+                    </div>
+                  ) : (
                   <div className="row" style={{ marginTop: 12 }}>
                     <button className="mic" disabled={busy || !canSpeak} onClick={() => status === 'listening' ? (recRef.current?.stop(), dispatch({ type: 'MIC_ENDED' })) : startListening()}>{status === 'listening' ? '■ Stop' : '🎤 Speak'}</button>
                     <form style={{ flex: 1, display: 'flex', gap: 8 }} onSubmit={e => { e.preventDefault(); const t = typed; setTyped(''); handle(t, performance.now()) }}>
@@ -172,13 +206,14 @@ function Viva() {
                       <button disabled={busy || !typed.trim()}>Send</button>
                     </form>
                   </div>
+                  )}
                   <p className="tiny mute">
                     <label><input type="checkbox" style={{ width: 'auto' }} checked={autoListen} onChange={e => setAutoListen(e.target.checked)} /> Start listening automatically after the examiner finishes</label>
-                    {' · '}<button className="ghost tiny" style={{ padding: '2px 8px' }} disabled={busy} onClick={endNow}>End viva &amp; get revision point</button>
+                    {' · '}<button className="ghost tiny" style={{ padding: '2px 8px' }} disabled={busy} onClick={endNow}>Finish viva &amp; get revision point</button>
                   </p>
                 </>
               )}
-              {last && <p className="tiny mute">Last turn: {last.latencyMs} ms from end of your speech (or Send) to first examiner audio{last.serverMs != null && ` (server/LLM ${last.serverMs} ms)`}.</p>}
+              {last && <p className="tiny mute">Last turn: {last.latencyMs} ms from when the text was sent to first examiner audio{last.serverMs != null && ` (server/LLM ${last.serverMs} ms)`}.</p>}
             </div>
           </div>
           <div>

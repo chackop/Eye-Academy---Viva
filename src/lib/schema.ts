@@ -1,10 +1,12 @@
-// Validation at the storage boundary: nothing read from or written to Firestore is trusted until it passes this.
+// The single source of truth for the shape of our data. TypeScript types are derived from these schemas
+// (types.ts re-exports them), so a type and its validation can never drift apart.
+// Validation happens at the boundaries: reading the case file, and reading/writing Firestore.
 import { z } from 'zod'
 import { CONFIG } from './config'
-import type { Attempt } from './types'
 
-const finding = z.object({
-  id: z.string(),
+/** One examination finding, exactly as it appears in the case file. */
+export const findingSchema = z.object({
+  id: z.string().min(1),
   eye: z.enum(['right', 'left', 'both']).nullable(),
   label: z.string(),
   value: z.union([z.string(), z.number()]).nullable(),
@@ -12,23 +14,26 @@ const finding = z.object({
   method: z.string().nullable(),
   available: z.boolean(),
   unavailable_reason: z.string().optional(),
-  revealedAt: z.number(),
 })
 
-const entry = z.object({
+const revealedFindingSchema = findingSchema.extend({ revealedAt: z.number() })
+
+const entrySchema = z.object({
   role: z.enum(['trainee', 'examiner']),
   text: z.string(),
-  kind: z.enum(['opening', 'finding', 'answer', 'followup', 'closing', 'clarify', 'system']),
+  kind: z.enum(['opening', 'finding', 'answer', 'followup', 'wrapup', 'closing', 'clarify', 'system']),
   ts: z.number(),
+  /** from when the text was sent to the first examiner audio, ms */
   latencyMs: z.number().optional(),
+  /** time spent waiting for the server (LLM) inside that turn, ms */
   serverMs: z.number().optional(),
 })
 
-const retrieved = z.array(z.object({ id: z.string(), page: z.number(), score: z.number() }))
+const retrievedSchema = z.array(z.object({ id: z.string(), page: z.number(), score: z.number() }))
 
-const revision = z.discriminatedUnion('supported', [
-  z.object({ supported: z.literal(true), point: z.string(), page: z.number(), excerpt: z.string(), passageId: z.string(), source: z.enum(['llm', 'extractive']), retrieved }),
-  z.object({ supported: z.literal(false), message: z.string(), retrieved }),
+const revisionSchema = z.discriminatedUnion('supported', [
+  z.object({ supported: z.literal(true), point: z.string(), page: z.number(), excerpt: z.string(), passageId: z.string(), source: z.enum(['llm', 'extractive']), retrieved: retrievedSchema }),
+  z.object({ supported: z.literal(false), message: z.string(), retrieved: retrievedSchema }),
 ])
 
 export const attemptSchema = z.object({
@@ -36,11 +41,16 @@ export const attemptSchema = z.object({
   uid: z.string().min(1),
   caseId: z.string(),
   createdAt: z.number(),
-  phase: z.enum(['examining', 'followup', 'done']),
-  transcript: z.array(entry),
-  revealed: z.array(finding),
-  revision: revision.nullable(),
+  phase: z.enum(['examining', 'followup', 'wrapup', 'done']),
+  transcript: z.array(entrySchema),
+  revealed: z.array(revealedFindingSchema),
+  revision: revisionSchema.nullable(),
 })
+
+export type Finding = z.infer<typeof findingSchema>
+export type Entry = z.infer<typeof entrySchema>
+export type Revision = z.infer<typeof revisionSchema>
+export type Attempt = z.infer<typeof attemptSchema>
 
 export class AttemptCorruptError extends Error {
   constructor(detail: string) { super(`This attempt's saved data is not in a form this version of the app can read (${detail}).`) }

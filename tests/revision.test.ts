@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { buildRevision, NO_SUPPORT } from '../src/lib/revision'
+import { buildRevision, NO_SUPPORT, shorten } from '../src/lib/revision'
 
 const ANSWER = ['I think this is acute angle closure. I would give timolol, apraclonidine and acetazolamide, then laser iridotomy.']
 const GOOD_QUOTE = 'Check for sulfonamide allergy, kidney disease, low potassium and sickle cell disease before giving it.'
@@ -60,5 +60,16 @@ describe('the revision point and its citation agree', () => {
       expect(r.point).toMatch(/chlorphenamine/i)
       expect(r.page).toBe(4) // the Triggers list, where chlorphenamine is named
     }
+  })
+})
+
+describe('shorten', () => {
+  it('leaves short text alone', () => expect(shorten('short text', 50)).toBe('short text'))
+  it('cuts at a word boundary and adds an ellipsis', () => {
+    const out = shorten('Drugs with anticholinergic effects, including some antihistamines and tricyclic antidepressants', 60)
+    expect(out.endsWith('…')).toBe(true)
+    expect(out.length).toBeLessThanOrEqual(61)
+    expect('Drugs with anticholinergic effects, including some antihistamines and tricyclic antidepressants').toContain(out.slice(0, -1))
+    expect(out).not.toMatch(/\b(tricyclic|antid)\S*…$/) // not cut inside a word
   })
 })

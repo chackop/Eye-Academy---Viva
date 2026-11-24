@@ -22,4 +22,16 @@ describe('case rules', () => {
     const bad = { ...raw, followUps: { ...raw.followUps, rules: [{ when: 'x' }] } }
     expect(caseRulesSchema.safeParse(bad).success).toBe(false)
   })
+
+  it('rejects a topic with no phrases, or only empty phrases', () => {
+    expect(caseRulesSchema.safeParse({ ...raw, topics: [{ prefix: 'va_', phrases: [] }] }).success).toBe(false)
+    expect(caseRulesSchema.safeParse({ ...raw, topics: [{ prefix: 'va_', phrases: ['  ?! '] }] }).success).toBe(false)
+  })
+
+  it('topics are plain phrase lists, not regexes', () => {
+    for (const t of raw.topics) {
+      expect(t).not.toHaveProperty('pattern')
+      expect(t.phrases.length).toBeGreaterThan(0)
+    }
+  })
 })

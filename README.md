@@ -11,7 +11,7 @@ npm install
 cp .env.example .env          # add ANTHROPIC_API_KEY for LLM follow-ups/revision (optional, see below)
 npm run emulators             # terminal 1: Auth :9099, Firestore :8080 (demo project, no cloud account)
 npm run dev                   # terminal 2: http://localhost:3000
-npm test                      # Vitest: finding matching, retrieval, citation guard, rubric (90 tests)
+npm test                      # Vitest: finding matching, retrieval, citation guard, rubric (149 tests)
 ```
 
 Create an account on the sign-in page (emulator only, any email/password), press **Start new viva**, then press the mic or type.
@@ -29,14 +29,18 @@ No `ANTHROPIC_API_KEY`? The app still works: the follow-up uses rule-based fallb
 | Claude client | `src/server/llm.ts` | The only file that calls Claude. `src/server/examiner.ts` is just the server-function wrappers. |
 | Data layer | `src/lib/attempts.ts` | The only file that talks to Firestore about attempts; typed not-found / access errors; save failures are shown to the user. |
 | Config | `src/lib/config.ts` | Every threshold, timeout, token limit, rate limit and the schema version in one place. |
-| Case rules | `data/case-rules.json`, `src/lib/case-rules.ts` | Topic keywords, answer/request cues, rubric and fallback follow-ups are data, validated with Zod at startup (bad regex or a topic matching no finding fails loudly). A new case needs a new rules file, not code changes. |
-| Stored data | `src/lib/schema.ts` | Zod schema + `schemaVersion` + `migrate()`. Reads are validated (a corrupt attempt shows a clear error and is skipped in the list); writes are validated before they leave the app; `firestore.rules` also checks shape and version. |
+| Case rules | `data/case-rules.json`, `src/lib/case-rules.ts` | Topics are plain phrase lists (`phrases`, optional `excludes`) matched by `src/lib/phrase-match.ts`, which tolerates plurals and small recognition slips in long clinical words ("gonioscopey" works with no alias; short words like "corner" never match "cornea", and a real listed word is never "corrected" into another). Answer/request cues, rubric and fallback follow-ups are regexes in the same file. All of it is validated with Zod at startup (bad regex or a topic matching no finding fails loudly). A new case needs a new rules file, not code changes. |
+| Stored data | `src/lib/schema.ts` | The single source of truth: Zod schemas, and the TypeScript types (`Attempt`, `Entry`, `Finding`, `Revision`) are derived from them (`types.ts` only re-exports). The case file's findings are validated with the same schema at startup. Adds `schemaVersion` + `migrate()`. Reads are validated (a corrupt attempt shows a clear error and is skipped in the list); writes are validated before they leave the app; `firestore.rules` also checks shape and version. |
 | Server protection | `src/server/middleware.ts`, `auth.ts`, `src/lib/rate-limit.ts` | Model-backed server functions require a valid Firebase ID token (verified with the Admin SDK), are limited to 20 calls/minute per user, and inputs are size-limited. |
 | UI | `src/routes/*` | Wiring only (speech, rendering, calling the layers above). |
 
 **Security note:** the Claude key stays on the server. Without the auth middleware anyone could call the endpoints and spend your API credit; with it, a call needs a signed-in user's token and is rate-limited. The limiter is in memory (fine for one process; use a shared store if you run several). Writing the whole transcript on every turn is fine for a short viva but would need appending for long sessions.
 
 ## How it works
+
+**Ending the viva is explicit:** phases are `examining` -> `followup` -> `wrapup` -> `done`. After the reply to the follow-up the examiner asks if there is anything else; extra statements are noted (and count towards the revision point), findings can still be requested, and the viva ends only when the trainee says they are finished ("that's all", "no thanks"; whole-utterance match so "no allergy to sulfonamides" does not end it) or presses the Finish button.
+
+**Checking what was heard:** speech recognition mishears words ("visual acuity" came back as "wish you liquidity"), so recognised speech is shown in an editable box and sent automatically after 2.5 s unless the trainee edits it, presses "Say again" or cancels. An utterance only counts as the trainee's answer if it looks like one; anything unrecognised gets "I didn't catch that" and does not use up their answer or end the viva.
 
 - **Findings never come from an LLM.** `src/lib/findings.ts` maps what the trainee says to finding ids in `data/case.json` (keywords + eye detection; no eye named = both eyes). Value, unit and eye are read from the JSON, shown verbatim on screen, and turned into a spoken string by a deterministic formatter. Unavailable findings say so and give the reason from the case.
 - **Turn flow:** finding request(s) -> read back and shown. First non-finding answer -> one spoken follow-up that responds to it (`followUpFn`). Next answer -> closing line -> revision point. Status banner shows *Your turn / Listening / Examiner thinking / Examiner speaking*; the text box and mic are disabled while the examiner is responding.
@@ -46,12 +50,12 @@ No `ANTHROPIC_API_KEY`? The app still works: the follow-up uses rule-based fallb
 ## Model choice and responsiveness
 
 - **Voice:** browser SpeechRecognition (en-GB) for speech-to-text and SpeechSynthesis for text-to-speech, with Claude only for the follow-up/revision text. Why: zero extra cost or keys, no audio leaves the app code, trivial to build in four hours, and because finding values come from JSON the voice layer cannot corrupt them. **Alternative considered:** a realtime speech-to-speech API (e.g. OpenAI Realtime). Better turn-taking and voice, but it costs per minute, needs a token-minting backend, and makes it harder to guarantee exact values and units.
-- **Timer:** starts when the recogniser emits its final result (it has decided the trainee stopped) or when Send is pressed; stops on the SpeechSynthesis `start` event (first audio). Shown per examiner message as "N ms to first audio", with server/LLM time in brackets for LLM turns. It excludes the recogniser's own end-of-speech silence wait.
+- **Timer:** starts when the app commits to the text (Send pressed, or the heard-text check window ends or "Send now" is pressed) and stops on the SpeechSynthesis `start` event (first audio). Shown per examiner message as "N ms to first audio", with server/LLM time in brackets for LLM turns. It excludes the recogniser's own end-of-speech wait and the confirmation window (`CONFIG.speech.confirmMs`, 2.5 s; set 0 to act immediately). First real measurements (Chrome, fallback follow-up, no API key): about 8 ms for finding turns (no server call) and about 546 ms for the turn that called the server.
 - **Measured:** TODO, record from Chrome with a real microphone. (The in-app preview browser blocks the mic and its synth reports near-zero start times, so those numbers are meaningless.)
 
 ## Three repeatable checks
 
-Automated parts: `npm test` (90 Vitest tests, all pass; the retrieval test prints the retrieved pages and cited passage with `npx vitest run --reporter=verbose`). End-to-end observed in the app (typed input, local emulator, no LLM key):
+Automated parts: `npm test` (149 Vitest tests, all pass; the retrieval test prints the retrieved pages and cited passage with `npx vitest run --reporter=verbose`). End-to-end observed in the app (typed input, local emulator, no LLM key):
 
 | # | Check | Input | Expected | Observed |
 |---|-------|-------|----------|----------|

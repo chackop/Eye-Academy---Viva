@@ -10,22 +10,27 @@ export type Phase = Attempt['phase']
 export type TurnPlan =
   | { action: 'reveal'; findings: Finding[]; next: Phase }
   | { action: 'ask_followup'; next: Phase }
+  | { action: 'offer_wrapup'; next: Phase } // answer to the follow-up received: ask if there is anything else
+  | { action: 'note'; next: Phase } // something else the trainee added while wrapping up
   | { action: 'close'; next: Phase }
   | { action: 'clarify'; next: Phase }
   | { action: 'ignore'; next: Phase }
 
 type Action = TurnPlan['action']
 /** phase -> what the trainee's utterance kind does -> [what the app does, next phase] */
-export const PHASE_TABLE: Record<Phase, Record<'findings' | 'answer' | 'unclear', [Action, Phase]>> = {
-  // An unclear request never uses up the trainee's answer; a finding request during the follow-up is still answered.
-  examining: { findings: ['reveal', 'examining'], answer: ['ask_followup', 'followup'], unclear: ['clarify', 'examining'] },
-  followup: { findings: ['reveal', 'followup'], answer: ['close', 'done'], unclear: ['clarify', 'followup'] },
-  done: { findings: ['ignore', 'done'], answer: ['ignore', 'done'], unclear: ['ignore', 'done'] },
+export const PHASE_TABLE: Record<Phase, Record<'findings' | 'answer' | 'unclear' | 'done', [Action, Phase]>> = {
+  // examining -> followup -> wrapup -> done. The viva only ends when the trainee says they are finished (or presses
+  // the button), never because of something we guessed. An unclear request never uses up an answer, and findings
+  // can be requested in every phase before the end.
+  examining: { findings: ['reveal', 'examining'], answer: ['ask_followup', 'followup'], unclear: ['clarify', 'examining'], done: ['clarify', 'examining'] },
+  followup: { findings: ['reveal', 'followup'], answer: ['offer_wrapup', 'wrapup'], unclear: ['clarify', 'followup'], done: ['clarify', 'followup'] },
+  wrapup: { findings: ['reveal', 'wrapup'], answer: ['note', 'wrapup'], unclear: ['clarify', 'wrapup'], done: ['close', 'done'] },
+  done: { findings: ['ignore', 'done'], answer: ['ignore', 'done'], unclear: ['ignore', 'done'], done: ['ignore', 'done'] },
 }
 
 /** Decide what to do with an utterance. Pure: no side effects, no server calls. */
 export function planTurn(phase: Phase, text: string): TurnPlan {
-  const intent = classifyUtterance(text)
+  const intent = classifyUtterance(text, { expectingAnswer: phase === 'followup' || phase === 'wrapup', wrappingUp: phase === 'wrapup' })
   const [action, next] = PHASE_TABLE[phase][intent.kind]
   if (action === 'reveal' && intent.kind === 'findings') return { action, findings: intent.findings, next }
   return { action: action as Exclude<Action, 'reveal'>, next }
@@ -33,7 +38,15 @@ export function planTurn(phase: Phase, text: string): TurnPlan {
 
 export const CLOSING_TEXT = "Thank you, that's the end of the viva. Let me find a revision point from the reference note."
 
+export const WRAPUP_TEXT = "Thank you. Is there anything else you'd like to examine or add? Say that's all when you're finished."
+export const NOTE_TEXT = "Noted. Anything else, or say that's all to finish."
+
 export const CLARIFY_TEXT = "Sorry, I didn't catch which finding you meant. Ask for one, such as visual acuity, pressure or pupils, or give me your diagnosis and management."
+
+/** Fixed examiner lines (no server call needed). */
+export function examinerLine(action: 'clarify' | 'offer_wrapup' | 'note' | 'close'): string {
+  return { clarify: CLARIFY_TEXT, offer_wrapup: WRAPUP_TEXT, note: NOTE_TEXT, close: CLOSING_TEXT }[action]
+}
 
 export const findingsSpeech = (findings: Finding[]) => findings.map(spokenText).join(' ')
 export const revealedLabels = (revealed: Attempt['revealed']) => revealed.map(f => `${f.eye ?? ''} ${f.label}`.trim())
@@ -51,8 +64,8 @@ export function completeTurn(
   meta: { latencyMs?: number; serverMs?: number } = {},
 ): Attempt {
   if (plan.action === 'ignore') return a
-  const trainee: Entry = { role: 'trainee', kind: plan.action === 'reveal' ? 'finding' : plan.action === 'clarify' ? 'clarify' : 'answer', text: traineeText, ts: now }
-  const kind = { reveal: 'finding', ask_followup: 'followup', close: 'closing', clarify: 'clarify' }[plan.action] as Entry['kind']
+  const trainee: Entry = { role: 'trainee', kind: plan.action === 'reveal' ? 'finding' : plan.action === 'clarify' ? 'clarify' : plan.action === 'close' ? 'system' : 'answer', text: traineeText, ts: now }
+  const kind = { reveal: 'finding', ask_followup: 'followup', offer_wrapup: 'wrapup', note: 'wrapup', close: 'closing', clarify: 'clarify' }[plan.action] as Entry['kind']
   const examiner: Entry = { role: 'examiner', kind, text: examinerText, ts: now }
   if (meta.latencyMs != null) examiner.latencyMs = meta.latencyMs
   if (meta.serverMs != null) examiner.serverMs = meta.serverMs
@@ -66,14 +79,16 @@ export const traineeAnswers = (a: Attempt) => a.transcript.filter(e => e.role ==
 
 /* ---------- 2. On-screen status: who may speak right now ---------- */
 
-export type UiStatus = 'idle' | 'listening' | 'thinking' | 'speaking' | 'done'
+export type UiStatus = 'idle' | 'listening' | 'confirming' | 'thinking' | 'speaking' | 'done'
 export type UiEvent =
-  | { type: 'LISTEN' } | { type: 'THINK' } | { type: 'SPEAK' } | { type: 'MIC_ENDED' } | { type: 'FINISH' }
+  | { type: 'LISTEN' } | { type: 'CONFIRM' } | { type: 'CANCEL' } | { type: 'THINK' } | { type: 'SPEAK' } | { type: 'MIC_ENDED' } | { type: 'FINISH' }
   | { type: 'SETTLE'; done: boolean } // examiner finished / nothing left to do
 
 export const UI_TABLE: Record<UiStatus, Partial<Record<UiEvent['type'], UiStatus>>> = {
   idle: { LISTEN: 'listening', THINK: 'thinking', SPEAK: 'speaking', FINISH: 'done', SETTLE: 'idle' },
-  listening: { THINK: 'thinking', SPEAK: 'speaking', MIC_ENDED: 'idle', FINISH: 'done' },
+  // Heard something: show it for the trainee to check before the examiner acts on it.
+  listening: { CONFIRM: 'confirming', THINK: 'thinking', SPEAK: 'speaking', MIC_ENDED: 'idle', FINISH: 'done' },
+  confirming: { THINK: 'thinking', LISTEN: 'listening', CANCEL: 'idle', MIC_ENDED: 'idle', FINISH: 'done' },
   thinking: { THINK: 'thinking', SPEAK: 'speaking', SETTLE: 'idle', FINISH: 'done' },
   speaking: { SPEAK: 'speaking', THINK: 'thinking', LISTEN: 'listening', SETTLE: 'idle', FINISH: 'done' },
   done: { SPEAK: 'speaking', FINISH: 'done', SETTLE: 'done' }, // replaying a line after the viva

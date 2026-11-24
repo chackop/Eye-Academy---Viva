@@ -3,12 +3,20 @@
 import { z } from 'zod'
 import raw from '../../data/case-rules.json'
 import { FINDINGS } from './findings-data'
+import { compileTopics, words } from './phrase-match'
 
 const pattern = z.string().refine(p => { try { new RegExp(p); return true } catch { return false } }, 'invalid regular expression')
 
 export const caseRulesSchema = z.object({
-  topics: z.array(z.object({ prefix: z.string().min(1), pattern })).min(1),
+  // Plain phrase lists, not regexes: easy for a clinician to edit; spelling slips and plurals are handled by phrase-match.ts.
+  topics: z.array(z.object({
+    prefix: z.string().min(1),
+    phrases: z.array(z.string().refine(p => words(p).length > 0, 'empty phrase')).min(1),
+    excludes: z.array(z.string()).optional(),
+  })).min(1),
   answerCue: pattern,
+  answerTerms: pattern,
+  doneCue: pattern,
   requestCue: pattern,
   rubric: z.array(z.object({ key: z.string().min(1), hit: pattern, onlyIf: pattern.optional() })),
   followUps: z.object({
@@ -26,8 +34,10 @@ for (const t of parsed.topics) {
 
 const re = (p: string) => new RegExp(p)
 export const RULES = {
-  topics: parsed.topics.map(t => ({ prefix: t.prefix, re: re(t.pattern) })),
+  topics: compileTopics(parsed.topics),
   answerCue: re(parsed.answerCue),
+  answerTerms: re(parsed.answerTerms),
+  doneCue: re(parsed.doneCue),
   requestCue: re(parsed.requestCue),
   rubric: parsed.rubric.map(r => ({ key: r.key, hit: re(r.hit), onlyIf: r.onlyIf ? re(r.onlyIf) : undefined })),
   followUps: {

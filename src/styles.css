@@ -10,7 +10,8 @@ button.ghost{background:#fff;color:var(--navy);border:1px solid var(--line)}butt
 input{padding:10px;border:1px solid var(--line);border-radius:8px;width:100%}
 .grid{display:grid;grid-template-columns:1.3fr 1fr;gap:16px}@media(max-width:800px){.grid{grid-template-columns:1fr}}
 .status{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:12px;color:#fff;font-weight:600}
-.status.idle{background:var(--mute)}.status.listening{background:var(--listen)}.status.thinking{background:var(--think)}.status.speaking{background:var(--speak)}.status.done{background:var(--ok)}
+.status.idle{background:var(--mute)}.status.listening{background:var(--listen)}.status.thinking{background:var(--think)}.status.speaking{background:var(--speak)}.status.done{background:var(--ok)}.status.confirming{background:#6b4fbb}
+.bar{height:4px;background:var(--line);border-radius:2px;margin-top:8px;overflow:hidden}.bar span{display:block;height:100%;background:#6b4fbb;transition:width .1s linear}
 .dot{width:12px;height:12px;border-radius:50%;background:#fff}.listening .dot{animation:pulse 1s infinite}
 @keyframes pulse{50%{transform:scale(1.6);opacity:.5}}
 .msg{padding:8px 12px;border-radius:10px;margin:6px 0;max-width:92%}.msg.examiner{background:#eef1ff}.msg.trainee{background:#e9f7ef;margin-left:auto}
