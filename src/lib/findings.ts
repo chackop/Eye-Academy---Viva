@@ -18,7 +18,7 @@ function eyesMentioned(t: string): ('right' | 'left')[] {
 export type Intent =
   | { kind: 'findings'; findings: Finding[] }
   | { kind: 'answer' }
-  | { kind: 'done' } // "that's all": only recognised when the examiner has asked if there is anything else
+  | { kind: 'done' } // "that's all" / "I'm finished" (whole-utterance match, so clinical statements never end the viva)
   | { kind: 'unclear' } // names no finding and does not sound like an answer (often a mis-heard word)
 
 /**
@@ -32,10 +32,10 @@ function looksLikeAnswer(t: string): boolean {
 }
 
 /** `expectingAnswer`: the examiner has just asked a question, so a terse reply that is not shaped like a request is the answer. */
-export function classifyUtterance(raw: string, opts: { expectingAnswer?: boolean; wrappingUp?: boolean } = {}): Intent {
+export function classifyUtterance(raw: string, opts: { expectingAnswer?: boolean } = {}): Intent {
   const t = norm(raw)
   // Whole-utterance match, so "no allergy to sulfonamides" is an answer, not the end.
-  if (opts.wrappingUp && RULES.doneCue.test(t)) return { kind: 'done' }
+  if (RULES.doneCue.test(t)) return { kind: 'done' }
   const topics = RULES.topics.filter(x => x.test(t))
   if (!topics.length) {
     const terseReply = !!opts.expectingAnswer && t.split(' ').length >= 3 && !RULES.requestCue.test(t) && !/\b(each|both|right|left) eyes?\b/.test(t)

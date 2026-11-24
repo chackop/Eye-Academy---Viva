@@ -43,9 +43,20 @@ describe('planTurn (phase transitions)', () => {
       expect(planTurn('wrapup', 'is there an r a p k')).toEqual({ action: 'clarify', next: 'wrapup' })
     })
 
-    it('"that\'s all" is not treated as finishing outside the wrap-up stage', () => {
-      expect(planTurn('examining', "that's all").action).not.toBe('close')
-      expect(planTurn('followup', "that's all").action).not.toBe('close')
+    it.each(['examining', 'followup'] as const)('"that\'s all" during %s asks to confirm instead of ending on one phrase', phase => {
+      expect(planTurn(phase, "that's all")).toEqual({ action: 'confirm_finish', next: 'wrapup' })
+    })
+
+    it('saying it again after the confirmation ends the viva', () => {
+      expect(planTurn('wrapup', "that's all")).toEqual({ action: 'close', next: 'done' })
+    })
+
+    it('the confirmation line is not counted as an answer', () => {
+      const a = newAttempt('u', 1)
+      const next = completeTurn(a, planTurn('examining', "that's all"), "that's all", examinerLine('confirm_finish'), 2)
+      expect(next.phase).toBe('wrapup')
+      expect(next.transcript.at(-2)).toMatchObject({ role: 'trainee', kind: 'system' })
+      expect(traineeAnswers(next)).toEqual([])
     })
   })
 

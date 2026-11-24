@@ -1,5 +1,9 @@
 # Eye Academy voice viva (take-home)
 
+![A finished viva: transcript on the left; revealed findings and the cited revision point on the right](docs/viva-screenshot.png)
+
+*A finished viva (typed input, local emulator, no LLM key): exact findings with eye and units, an unavailable finding flagged, and a revision point cited to a page of the reference note.*
+
 TanStack Start + Firebase Auth/Firestore + browser Web Speech API. Fictional case EA-VIVA-001 (angle closure) and the Eye Academy glaucoma reference note. Not clinical guidance.
 
 ## Run locally
@@ -38,7 +42,7 @@ No `ANTHROPIC_API_KEY`? The app still works: the follow-up uses rule-based fallb
 
 ## How it works
 
-**Ending the viva is explicit:** phases are `examining` -> `followup` -> `wrapup` -> `done`. After the reply to the follow-up the examiner asks if there is anything else; extra statements are noted (and count towards the revision point), findings can still be requested, and the viva ends only when the trainee says they are finished ("that's all", "no thanks"; whole-utterance match so "no allergy to sulfonamides" does not end it) or presses the Finish button.
+**Ending the viva is explicit:** phases are `examining` -> `followup` -> `wrapup` -> `done`. After the reply to the follow-up the examiner asks if there is anything else; extra statements are noted (and count towards the revision point), findings can still be requested, and the viva ends only when the trainee says they are finished ("that's all", "no thanks"; whole-utterance match so "no allergy to sulfonamides" does not end it) or presses the Finish button. Saying it earlier (before the examiner has asked) gets one "Do you want to finish?" check, and saying it again ends the viva.
 
 **Checking what was heard:** speech recognition mishears words ("visual acuity" came back as "wish you liquidity"), so recognised speech is shown in an editable box and sent automatically after 2.5 s unless the trainee edits it, presses "Say again" or cancels. An utterance only counts as the trainee's answer if it looks like one; anything unrecognised gets "I didn't catch that" and does not use up their answer or end the viva.
 

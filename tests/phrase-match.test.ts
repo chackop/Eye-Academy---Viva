@@ -59,6 +59,7 @@ describe('compileTopics', () => {
 describe('topics through the real case rules', () => {
   it.each([
     ['gonioscopey in the right eye', ['gonio_right']], // spelling slip, no alias needed
+    ['can I see Gino\'s copy in the right eye', ['gonio_right']], // heard for "gonioscopy"
     ['tonometri of the left eye', ['iop_left']],
     ['conjuntiva in each eye', ['conj_right', 'conj_left']],
     ['the pupils', ['pupil_right', 'pupil_left']],

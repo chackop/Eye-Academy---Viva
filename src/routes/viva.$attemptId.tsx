@@ -167,13 +167,21 @@ function Viva() {
   const last = [...attempt.transcript].reverse().find(e => e.latencyMs != null)
   const busy = examinerBusy(status)
 
+  // Status, live transcript and errors sit directly above the input while the viva is running (that is where the
+  // trainee is looking); once it has finished the input is hidden, so they stay at the top of the page.
+  const statusBlock = (
+    <div style={{ margin: '12px 0' }}>
+      <div className={`status ${status}`} role="status" aria-live="polite"><span className="dot" />{STATUS_TEXT[status]}</div>
+      {interim && <p className="mute"><em>“{interim}”</em></p>}
+      {error && <p className="err">{error}</p>}
+    </div>
+  )
+
   return (
     <>
       <div className="top"><Link className="brand" to="/">← eyeacademy · Voice viva</Link><span className="mute tiny">{CASE.case_id} · fictional case</span></div>
       <div className="wrap">
-        <div className={`status ${status}`} role="status" aria-live="polite"><span className="dot" />{STATUS_TEXT[status]}</div>
-        {interim && <p className="mute"><em>“{interim}”</em></p>}
-        {error && <p className="err">{error}</p>}
+        {attempt.phase === 'done' && statusBlock}
         <div className="grid" style={{ marginTop: 12 }}>
           <div>
             <div className="card">
@@ -187,25 +195,28 @@ function Viva() {
               ))}
               {attempt.phase !== 'done' && (
                 <>
+                  {statusBlock}
                   {status === 'confirming' && pending !== null ? (
                     <div style={{ marginTop: 12 }}>
                       <p className="tiny mute">I heard this. Fix it if it's wrong{!editing && ` · sending in ${Math.ceil(msLeft / 1000)}s`}</p>
-                      <form className="row" onSubmit={e => { e.preventDefault(); send(pending) }}>
+                      <form onSubmit={e => { e.preventDefault(); send(pending) }}>
                         <input value={pending} aria-label="What I heard" onFocus={() => setEditing(true)} onChange={e => { setEditing(true); setPending(e.target.value) }} />
-                        <button>Send now</button>
-                        <button type="button" className="ghost" onClick={retry}>🎤 Say again</button>
-                        <button type="button" className="ghost" onClick={cancel}>Cancel</button>
+                        <div className="row" style={{ marginTop: 8 }}>
+                          <button style={{ whiteSpace: 'nowrap' }}>Send now</button>
+                          <button type="button" className="ghost" style={{ whiteSpace: 'nowrap' }} onClick={retry}>🎤 Say again</button>
+                          <button type="button" className="ghost" style={{ whiteSpace: 'nowrap' }} onClick={cancel}>Cancel</button>
+                        </div>
                       </form>
                       {!editing && <div className="bar"><span style={{ width: `${Math.max(0, msLeft / CONFIG.speech.confirmMs) * 100}%` }} /></div>}
                     </div>
                   ) : (
-                  <div className="row" style={{ marginTop: 12 }}>
-                    <button className="mic" disabled={busy || !canSpeak} onClick={() => status === 'listening' ? (recRef.current?.stop(), dispatch({ type: 'MIC_ENDED' })) : startListening()}>{status === 'listening' ? '■ Stop' : '🎤 Speak'}</button>
-                    <form style={{ flex: 1, display: 'flex', gap: 8 }} onSubmit={e => { e.preventDefault(); const t = typed; setTyped(''); handle(t, performance.now()) }}>
-                      <input value={typed} disabled={busy} onChange={e => setTyped(e.target.value)} placeholder={canSpeak ? 'or type, e.g. "what is the pressure in the right eye?"' : 'Speech input not supported in this browser: type here'} />
-                      <button disabled={busy || !typed.trim()}>Send</button>
-                    </form>
-                  </div>
+                  <form style={{ marginTop: 12 }} onSubmit={e => { e.preventDefault(); const t = typed; setTyped(''); handle(t, performance.now()) }}>
+                    <input value={typed} disabled={busy} onChange={e => setTyped(e.target.value)} placeholder={canSpeak ? 'Type here, or press Speak' : 'Speech input not supported in this browser: type here'} />
+                    <div className="row" style={{ marginTop: 8 }}>
+                      <button type="button" className="mic" disabled={busy || !canSpeak} onClick={() => status === 'listening' ? (recRef.current?.stop(), dispatch({ type: 'MIC_ENDED' })) : startListening()}>{status === 'listening' ? '■ Stop' : '🎤 Speak'}</button>
+                      <button className="mic" disabled={busy || !typed.trim()}>Send</button>
+                    </div>
+                  </form>
                   )}
                   <p className="tiny mute">
                     <label><input type="checkbox" style={{ width: 'auto' }} checked={autoListen} onChange={e => setAutoListen(e.target.checked)} /> Start listening automatically after the examiner finishes</label>

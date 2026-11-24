@@ -11,6 +11,7 @@ export type TurnPlan =
   | { action: 'reveal'; findings: Finding[]; next: Phase }
   | { action: 'ask_followup'; next: Phase }
   | { action: 'offer_wrapup'; next: Phase } // answer to the follow-up received: ask if there is anything else
+  | { action: 'confirm_finish'; next: Phase } // wants to finish early: check, rather than end on one phrase
   | { action: 'note'; next: Phase } // something else the trainee added while wrapping up
   | { action: 'close'; next: Phase }
   | { action: 'clarify'; next: Phase }
@@ -22,15 +23,15 @@ export const PHASE_TABLE: Record<Phase, Record<'findings' | 'answer' | 'unclear'
   // examining -> followup -> wrapup -> done. The viva only ends when the trainee says they are finished (or presses
   // the button), never because of something we guessed. An unclear request never uses up an answer, and findings
   // can be requested in every phase before the end.
-  examining: { findings: ['reveal', 'examining'], answer: ['ask_followup', 'followup'], unclear: ['clarify', 'examining'], done: ['clarify', 'examining'] },
-  followup: { findings: ['reveal', 'followup'], answer: ['offer_wrapup', 'wrapup'], unclear: ['clarify', 'followup'], done: ['clarify', 'followup'] },
+  examining: { findings: ['reveal', 'examining'], answer: ['ask_followup', 'followup'], unclear: ['clarify', 'examining'], done: ['confirm_finish', 'wrapup'] },
+  followup: { findings: ['reveal', 'followup'], answer: ['offer_wrapup', 'wrapup'], unclear: ['clarify', 'followup'], done: ['confirm_finish', 'wrapup'] },
   wrapup: { findings: ['reveal', 'wrapup'], answer: ['note', 'wrapup'], unclear: ['clarify', 'wrapup'], done: ['close', 'done'] },
   done: { findings: ['ignore', 'done'], answer: ['ignore', 'done'], unclear: ['ignore', 'done'], done: ['ignore', 'done'] },
 }
 
 /** Decide what to do with an utterance. Pure: no side effects, no server calls. */
 export function planTurn(phase: Phase, text: string): TurnPlan {
-  const intent = classifyUtterance(text, { expectingAnswer: phase === 'followup' || phase === 'wrapup', wrappingUp: phase === 'wrapup' })
+  const intent = classifyUtterance(text, { expectingAnswer: phase === 'followup' || phase === 'wrapup' })
   const [action, next] = PHASE_TABLE[phase][intent.kind]
   if (action === 'reveal' && intent.kind === 'findings') return { action, findings: intent.findings, next }
   return { action: action as Exclude<Action, 'reveal'>, next }
@@ -39,13 +40,14 @@ export function planTurn(phase: Phase, text: string): TurnPlan {
 export const CLOSING_TEXT = "Thank you, that's the end of the viva. Let me find a revision point from the reference note."
 
 export const WRAPUP_TEXT = "Thank you. Is there anything else you'd like to examine or add? Say that's all when you're finished."
+export const FINISH_CONFIRM_TEXT = "Do you want to finish the viva now? Say that's all again to finish, or carry on."
 export const NOTE_TEXT = "Noted. Anything else, or say that's all to finish."
 
 export const CLARIFY_TEXT = "Sorry, I didn't catch which finding you meant. Ask for one, such as visual acuity, pressure or pupils, or give me your diagnosis and management."
 
 /** Fixed examiner lines (no server call needed). */
-export function examinerLine(action: 'clarify' | 'offer_wrapup' | 'note' | 'close'): string {
-  return { clarify: CLARIFY_TEXT, offer_wrapup: WRAPUP_TEXT, note: NOTE_TEXT, close: CLOSING_TEXT }[action]
+export function examinerLine(action: 'clarify' | 'offer_wrapup' | 'confirm_finish' | 'note' | 'close'): string {
+  return { clarify: CLARIFY_TEXT, offer_wrapup: WRAPUP_TEXT, confirm_finish: FINISH_CONFIRM_TEXT, note: NOTE_TEXT, close: CLOSING_TEXT }[action]
 }
 
 export const findingsSpeech = (findings: Finding[]) => findings.map(spokenText).join(' ')
@@ -64,8 +66,8 @@ export function completeTurn(
   meta: { latencyMs?: number; serverMs?: number } = {},
 ): Attempt {
   if (plan.action === 'ignore') return a
-  const trainee: Entry = { role: 'trainee', kind: plan.action === 'reveal' ? 'finding' : plan.action === 'clarify' ? 'clarify' : plan.action === 'close' ? 'system' : 'answer', text: traineeText, ts: now }
-  const kind = { reveal: 'finding', ask_followup: 'followup', offer_wrapup: 'wrapup', note: 'wrapup', close: 'closing', clarify: 'clarify' }[plan.action] as Entry['kind']
+  const trainee: Entry = { role: 'trainee', kind: plan.action === 'reveal' ? 'finding' : plan.action === 'clarify' ? 'clarify' : plan.action === 'close' || plan.action === 'confirm_finish' ? 'system' : 'answer', text: traineeText, ts: now }
+  const kind = { reveal: 'finding', ask_followup: 'followup', offer_wrapup: 'wrapup', confirm_finish: 'wrapup', note: 'wrapup', close: 'closing', clarify: 'clarify' }[plan.action] as Entry['kind']
   const examiner: Entry = { role: 'examiner', kind, text: examinerText, ts: now }
   if (meta.latencyMs != null) examiner.latencyMs = meta.latencyMs
   if (meta.serverMs != null) examiner.serverMs = meta.serverMs
