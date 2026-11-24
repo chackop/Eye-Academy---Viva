@@ -1,0 +1,58 @@
+     eyeacademy                                                                                   Take-home reference note
+
+
+
+
+  Condition                             Features that help to tell it apart
+
+
+  Phacomorphic angle closure            Swollen cataractous lens, asymmetric chamber depth between the eyes, poor
+                                        vision before the attack, open angle in the other eye
+
+  Neovascular glaucoma                  New vessels on the iris and in the angle, history of diabetes, retinal vein
+                                        occlusion or carotid disease
+
+  Uveitic or hypertensive               Cells and flare in the anterior chamber, keratic precipitates, posterior
+  uveitis                               synechiae; consider herpes simplex, varicella zoster and cytomegalovirus
+
+  Posner–Schlossman                     Recurrent one-sided attacks of very high IOP with mild inflammation, a few
+  syndrome                              fine keratic precipitates and an open angle
+
+  Topiramate-induced angle              Both eyes, sudden myopic shift, recent start of topiramate, ciliochoroidal
+  closure                               effusion, uniformly shallow chamber
+
+  Aqueous misdirection                  After eye surgery, flat central and peripheral chamber despite a patent
+                                        iridotomy
+
+  Orbital causes                        Proptosis, restricted eye movements, dilated episcleral vessels; for example
+                                        carotid-cavernous fistula, retrobulbar haemorrhage or orbital inflammation
+
+
+
+Managing an acute attack
+The aims are to lower the IOP quickly, relieve pupil block, protect the other eye and prevent a recurrence.
+Treatment below is an outline only; doses and choices should follow local protocols.
+
+Immediate treatment
+    Position and support. Lie the patient flat (supine) to let the lens fall back, and give analgesia and an
+    antiemetic.
+    Topical IOP-lowering drops. A beta-blocker such as timolol 0.5% (unless the patient has asthma,
+    COPD, bradycardia or heart block) and an alpha-agonist such as apraclonidine 1% or brimonidine
+    0.2%. A topical carbonic anhydrase inhibitor can be added. Leave 3 to 5 minutes between drops.
+    Prostaglandin analogues act too slowly to help in the acute phase.
+    Topical steroid. Prednisolone acetate 1% to reduce inflammation.
+    Pilocarpine. Pilocarpine 2% constricts the pupil and pulls the iris away from the angle. The iris
+    sphincter is often ischaemic and does not respond while the IOP is very high, so pilocarpine works
+    better once the pressure has started to fall (many protocols wait until the IOP is below 40 to 50
+    mmHg). Avoid repeated intensive doses and strong concentrations such as 4%, which can push the
+    lens-iris diaphragm forward and cause systemic toxicity.
+    Fellow eye. Many units give pilocarpine 1% to the other eye until it has an iridotomy, although some
+    specialists avoid this. Either way, the priority is prompt iridotomy in both eyes.
+    Systemic carbonic anhydrase inhibitor. Acetazolamide 500 mg, given intravenously if the IOP is
+    above about 50 mmHg or the patient is vomiting, otherwise orally (not the slow-release form), then
+
+
+
+
+Glaucoma and angle closure · Eye Academy reference note                                                                 5
+

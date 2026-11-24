@@ -1,0 +1,51 @@
+     eyeacademy                                                                          Take-home reference note
+
+
+
+
+Laser peripheral iridotomy
+An iridotomy is a small full-thickness opening in the peripheral iris that lets aqueous bypass the pupil. It
+equalises the pressure in front of and behind the iris and relieves pupil block.
+
+Indications
+    After acute primary angle closure, in both eyes
+    Primary angle closure and primary angle closure glaucoma
+    Selected primary angle closure suspects. The ZAP and ANA-LIG trials showed only a small protective
+    effect, so LPI is usually reserved for higher-risk people: symptoms of intermittent closure, a need for
+    drugs that may cause pupil block, frequent dilated examinations (for example diabetic retinopathy or
+    AMD), poor access to eye care, or a family history of angle closure.
+    Pigment dispersion with marked reverse pupil block (less commonly used now)
+
+Technique
+Pre-treat with pilocarpine to stretch and thin the iris and with apraclonidine to reduce the post-laser
+pressure spike. Place the opening in the peripheral iris, ideally in an iris crypt, either fully covered by the
+upper lid or temporally, using a contact lens to focus the beam. Avoid the lid margin and tear meniscus,
+where a partly covered opening is most likely to cause visual symptoms. The Nd:YAG laser is used most
+often; argon laser can be added first in thick, dark irides to reduce bleeding and the energy needed.
+
+Complications
+    A temporary rise in IOP, so recheck the pressure after about an hour
+    Bleeding from the iris or a small hyphaema, usually stopped by gentle pressure with the contact lens
+    Anterior uveitis
+    Visual disturbance such as lines, glare or ghost images, particularly if the opening is only partly
+    covered by the lid
+    Corneal epithelial or endothelial burns, especially in a shallow chamber
+    Closure of the opening, needing repeat treatment
+    Persistent angle closure despite a patent iridotomy, which suggests plateau iris or a lens mechanism
+    Rarely, aqueous misdirection or damage to the lens or retina
+
+
+Plateau iris
+In plateau iris the ciliary processes are positioned anteriorly and hold the peripheral iris forward. The
+central anterior chamber can look normal or only slightly shallow, while the iris surface is flat and the
+peripheral angle is narrow. Patients tend to be younger than those with pure pupil block.
+
+    Plateau iris configuration describes the anatomy seen on gonioscopy or imaging.
+    Plateau iris syndrome describes an angle that stays closed, or closes again, despite a patent
+    iridotomy. Darkness or dilation may be needed to show it. In the complete form the IOP rises; in the
+    incomplete form the closure is less extensive and the IOP stays normal.
+
+
+
+Glaucoma and angle closure · Eye Academy reference note                                                           7
+

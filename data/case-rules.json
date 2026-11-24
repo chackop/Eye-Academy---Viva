@@ -1,0 +1,111 @@
+{
+ "topics": [
+  {
+   "prefix": "va_",
+   "pattern": "\\b(visual acuity|visual equity|visual acuteness|a cuity|acuity|vision|snellen|va)\\b"
+  },
+  {
+   "prefix": "iop_",
+   "pattern": "\\b(iop|i o p|intra ?ocular pressures?|eye pressures?|(?<!blood )pressures?|tonometry|applanation|goldmann)\\b"
+  },
+  {
+   "prefix": "conj_",
+   "pattern": "\\b(conjunctiva|conjunctival|redness|injection|ciliary flush)\\b"
+  },
+  {
+   "prefix": "cornea_",
+   "pattern": "\\b(cornea|corneal|corneas)\\b"
+  },
+  {
+   "prefix": "ac_",
+   "pattern": "\\b(anterior chamber|chamber depth|van herick|ac depth)\\b"
+  },
+  {
+   "prefix": "pupil_",
+   "pattern": "\\b(pupils?)\\b"
+  },
+  {
+   "prefix": "rapd",
+   "pattern": "\\b(rapd|afferent|swinging (light|torch))\\b"
+  },
+  {
+   "prefix": "lens_",
+   "pattern": "\\b(lens|lenses|cataract)\\b"
+  },
+  {
+   "prefix": "gonio_",
+   "pattern": "\\b(gonioscopy|gonio ?scop(y|e)|gonna scopy|gonio|drainage angles?|angle assessment)\\b"
+  },
+  {
+   "prefix": "fundus_",
+   "pattern": "\\b(fundus|fundi|optic disc|optic discs|the disc|discs|optic nerve|cupping|cup to disc|macula)\\b"
+  },
+  {
+   "prefix": "refraction",
+   "pattern": "\\b(refraction|refractive|prescription|glasses|spectacles|focimetry)\\b"
+  },
+  {
+   "prefix": "axial_length",
+   "pattern": "\\b(axial length|biometry)\\b"
+  },
+  {
+   "prefix": "oct",
+   "pattern": "\\b(oct|optical coherence)\\b"
+  },
+  {
+   "prefix": "bp",
+   "pattern": "\\b(blood pressure|bp)\\b"
+  },
+  {
+   "prefix": "u_and_e",
+   "pattern": "\\b(u ?(and|&) ?es?|urea|electrolytes|bloods|blood tests?|renal function)\\b"
+  }
+ ],
+ "answerCue": "\\b(diagnos\\w*|i think|i would|i'd|i'll|i will|treat\\w*|manage\\w*|prescrib\\w*|probably|likely|this is|my impression|i suspect|then i|start|give|stop)\\b",
+ "requestCue": "\\b(can i|could i|may i|what('s| is| are| was| about)|show me|tell me|any|how (is|are|high)|do you have|let me|i('d| would) like|measure|examine|look at)\\b",
+ "rubric": [
+  {
+   "key": "Lower the pressure with topical and systemic agents (timolol, apraclonidine/brimonidine, pilocarpine once pressure falls, acetazolamide)",
+   "hit": "timolol|beta.?blocker|apraclonidine|brimonidine|acetazolamide|diamox|mannitol|pilocarpine|carbonic anhydrase"
+  },
+  {
+   "key": "Check sulfonamide allergy before giving acetazolamide",
+   "hit": "sulfa|sulfonamide|allerg",
+   "onlyIf": "acetazolamide|diamox|carbonic anhydrase"
+  },
+  {
+   "key": "Stop the chlorphenamine (anticholinergic antihistamine trigger)",
+   "hit": "chlorphenamine|antihistamine|anticholinergic|stop (the )?(drug|medic|tablet)"
+  },
+  {
+   "key": "Give analgesia and an antiemetic",
+   "hit": "analgesi|pain ?relief|paracetamol|morphine|antiemetic|anti.?sickness|ondansetron|cyclizine|metoclopramide"
+  },
+  {
+   "key": "Laser peripheral iridotomy to both eyes, including the fellow eye",
+   "hit": "(iridotomy|lpi|laser)[^]*(both|fellow|other eye|left|prophylac)|(both|fellow|other eye|left|prophylac)[^]*(iridotomy|lpi|laser)"
+  },
+  {
+   "key": "Repeat gonioscopy and examine the optic discs after the attack settles",
+   "hit": "gonioscopy[^]*(settle|afterwards|after|repeat|review)|(repeat|review)[^]*gonio|visual field|optic disc"
+  }
+ ],
+ "followUps": {
+  "rules": [
+   {
+    "when": "acetazolamide|diamox",
+    "unless": "sulfa|sulfonamide|allerg",
+    "ask": "You mentioned acetazolamide. What would you check before giving it to this patient?"
+   },
+   {
+    "when": "pilocarpine",
+    "idea": 1
+   },
+   {
+    "when": "iridotomy|laser|lpi",
+    "idea": 0
+   }
+  ],
+  "defaultIdea": 2
+ }
+}

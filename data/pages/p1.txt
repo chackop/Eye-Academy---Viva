@@ -1,0 +1,50 @@
+     eyeacademy                                                                             Take-home reference note
+
+
+
+
+Glaucoma and angle closure
+  Reference note        Voice viva take-home              Written by Eye Academy   Revised November 2026
+
+
+
+
+About this note
+
+   This note was written by Eye Academy for the developer take-home task. It is a revision summary for
+   trainees, not clinical guidance: always follow local protocols and current national guidance. Page
+   numbers are printed at the foot of each page so that answers can cite them.
+
+
+
+Aqueous humour and intraocular pressure
+Aqueous humour is secreted by the non-pigmented epithelium of the ciliary body, mostly by active
+transport (with smaller contributions from ultrafiltration and diffusion), at roughly 2 to 3 microlitres per
+minute. It passes from the posterior chamber through the pupil into the anterior chamber, then leaves
+the eye by two routes.
+
+    Conventional (trabecular) outflow. Aqueous passes through the trabecular meshwork into
+    Schlemm's canal, then into collector channels and the episcleral veins. This route carries most of the
+    outflow in adults and depends on pressure.
+    Uveoscleral outflow. Aqueous passes through the ciliary muscle into the suprachoroidal space. This
+    route is largely independent of pressure, is relatively larger in younger people, and is the main target
+    of prostaglandin analogues.
+
+Intraocular pressure (IOP) reflects the balance between production and outflow. In adults the population
+average is about 15 to 16 mmHg, and 21 mmHg (about two standard deviations above the mean) is often
+quoted as the upper limit of normal, but many people with glaucoma have pressures below this and many
+people above it never develop damage. IOP varies through the day and is often highest in the early
+morning.
+
+Measuring IOP
+Goldmann applanation tonometry at the slit lamp is the reference standard. It assumes an average
+central corneal thickness (CCT): a thick cornea makes the reading higher than the true pressure, and a
+thin cornea makes it lower. Record the time of measurement, the method and which eye. Rebound and
+non-contact tonometers are useful for screening and for children but are less accurate at very high
+pressures.
+
+
+
+
+Glaucoma and angle closure · Eye Academy reference note                                                            1
+

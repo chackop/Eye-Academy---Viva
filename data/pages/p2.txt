@@ -1,0 +1,56 @@
+      eyeacademy                                                                         Take-home reference note
+
+
+
+
+Assessing the drainage angle
+Van Herick grading
+With a thin, bright slit beam offset about 60 degrees from the microscope and placed at the temporal
+limbus, compare the depth of the most peripheral anterior chamber with the thickness of the cornea.
+
+  Grade       Peripheral chamber depth                       Interpretation
+
+
+  4           Equal to or greater than corneal thickness     Wide open
+
+  3           Between a quarter and a half                   Closure unlikely
+
+  2           A quarter                                      Needs gonioscopy
+
+  1           Less than a quarter                            Angle usually dangerously narrow on gonioscopy
+
+
+Van Herick is a screening test only. It can overestimate angle width, particularly in plateau iris
+configuration, so grades 1 and 2 (and any clinical suspicion) should be confirmed with gonioscopy.
+
+Gonioscopy
+Gonioscopy is the reference standard for seeing the angle structures directly. Use a dark room and a
+short, thin slit beam that avoids the pupil, because light constricts the pupil and can open an angle that
+would be closed in the dark (this happens in about a third of appositionally closed angles). From
+posterior to anterior the visible structures are the ciliary body band, scleral spur, trabecular meshwork
+and Schwalbe's line. The angle is usually narrowest superiorly.
+
+      Indentation (dynamic) gonioscopy with a four-mirror lens pushes aqueous into the angle. If the iris
+      falls back, the closure is appositional; if it stays stuck to the meshwork, there are peripheral anterior
+      synechiae (PAS).
+      Iridotrabecular contact (ITC) means the peripheral iris touches the posterior (pigmented)
+      trabecular meshwork. ITC for at least 180 degrees is the threshold used by the American Academy of
+      Ophthalmology and in recent trials. The original international (ISGEO) definition, still used in Kanski,
+      requires three or more quadrants (270 degrees).
+      Shaffer grading records the angle width in each quadrant: grade 4 (35 to 45 degrees, ciliary body
+      visible), grade 3 (scleral spur visible), grade 2 (trabecular meshwork but not scleral spur visible),
+      grade 1 (only Schwalbe's line and perhaps the top of the meshwork visible), slit, and grade 0 (closed).
+
+Anterior segment OCT and ultrasound biomicroscopy (UBM) give images of the angle and complement
+gonioscopy, but they do not replace it. UBM is better for plateau iris and other ciliary body causes,
+because it can see behind the iris.
+
+
+Primary angle closure
+Terminology
+The terms below follow the international (ISGEO) classification used by the major guidelines.
+
+
+
+Glaucoma and angle closure · Eye Academy reference note                                                           2
+

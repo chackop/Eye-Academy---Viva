@@ -1,0 +1,51 @@
+     eyeacademy                                                                        Take-home reference note
+
+
+
+
+Gonioscopy shows a "double hump" sign on indentation: a central hump from the iris over the lens and a
+peripheral hump from the iris over the ciliary processes. Ultrasound biomicroscopy confirms the anterior
+ciliary processes. Laser iridoplasty is the procedure of choice when the angle stays closed after
+iridotomy; other options are long-term pilocarpine and lens extraction.
+
+
+Secondary angle closure
+Secondary angle closure has an identifiable cause other than primary anatomy. It can be divided into
+causes that push the iris forward from behind and causes that pull it into the angle from in front. It is
+more often one-sided than primary angle closure.
+
+Pushing mechanisms
+    Phacomorphic or lens subluxation. A swollen cataractous lens, or a lens that has moved forward
+    (for example after trauma, or in pseudoexfoliation or microspherophakia), pushes the iris forward.
+    Treated by lowering the IOP and removing the lens.
+    Ciliochoroidal effusion. Drugs such as topiramate, and some other sulfonamide-type drugs, cause
+    fluid to collect around the ciliary body, which rotates forward. Typically both eyes are affected within
+    the first two weeks of starting the drug, with a sudden myopic shift. Stop the drug (with the
+    prescriber) and use cycloplegics, topical steroid and IOP-lowering drops. Avoid acetazolamide, which
+    is itself a sulfonamide. Pilocarpine and iridotomy do not help, because there is no pupil block, and
+    pilocarpine can make it worse. Effusions also occur after extensive panretinal photocoagulation, in
+    nanophthalmos and with a central retinal vein occlusion.
+    Aqueous misdirection (malignant glaucoma). Usually after eye surgery, especially in short eyes
+    with angle closure, aqueous flows backwards into the vitreous and pushes the lens and iris forward.
+    Both the central and peripheral chamber become flat despite a patent iridotomy. Treated with
+    cycloplegics, aqueous suppressants and hyperosmotics, avoiding miotics; then, if needed, Nd:YAG
+    laser to the anterior hyaloid face (in pseudophakic eyes), cyclodiode or vitrectomy.
+    Posterior segment causes, such as large tumours, haemorrhage, a large serous retinal detachment,
+    expanding gas or silicone oil after vitrectomy, or a tight scleral buckle.
+
+Pulling mechanisms
+    Neovascular glaucoma. A fibrovascular membrane grows over the angle after retinal ischaemia, for
+    example from diabetes or central retinal vein occlusion. The angle is open at first, then the membrane
+    contracts to zip the angle shut. Treat the ischaemia (anti-VEGF injections and panretinal
+    photocoagulation) as well as the IOP.
+    Uveitis. Inflammation leads to PAS, often inferiorly, and posterior synechiae can cause pupil block
+    and iris bombé.
+    Iridocorneal endothelial (ICE) syndrome, in which abnormal corneal endothelium migrates over the
+    angle, often producing high PAS that reach beyond Schwalbe's line.
+    Epithelial or fibrous downgrowth, after surgery or a penetrating injury.
+
+
+
+
+Glaucoma and angle closure · Eye Academy reference note                                                        8
+

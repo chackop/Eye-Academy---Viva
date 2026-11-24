@@ -1,0 +1,56 @@
+     eyeacademy                                                                              Take-home reference note
+
+
+
+
+Primary open-angle glaucoma and ocular hypertension
+Primary open-angle glaucoma (POAG) is a chronic, progressive optic neuropathy with characteristic
+optic disc cupping and visual field loss, in an eye with an open angle and no secondary cause. It is usually
+painless and found at a routine eye test. Risk factors include raised IOP, older age, black African or
+Caribbean ethnicity, a family history, myopia and a thin central cornea.
+
+Ocular hypertension (OHT) means an IOP above 21 mmHg with a healthy optic disc and visual field. In the
+UK, NICE guidance (NG81, updated 2022) recommends offering treatment when the IOP is 24 mmHg or
+more and the person is at risk of visual impairment in their lifetime. For both OHT and POAG, 360-degree
+selective laser trabeculoplasty (SLT) is now offered first, with a generic prostaglandin analogue as the
+usual first-choice medicine if SLT is unsuitable or not wanted. This change followed the LiGHT trial.
+
+Normal-tension glaucoma describes glaucomatous damage with IOP that is always within the normal
+range. Vascular factors such as low blood pressure at night, migraine and Raynaud's phenomenon may
+play a role.
+
+
+IOP-lowering medicines
+  Class                 Examples                How it lowers IOP       Key cautions
+
+
+  Prostaglandin         Latanoprost,            Increase uveoscleral    Lash growth, darker iris and periocular
+  analogues             bimatoprost,            outflow                 skin, orbital fat loss, red eye; use with
+                        travoprost,                                     care in active uveitis, cystoid macular
+                        tafluprost                                      oedema and herpes simplex keratitis
+
+  Beta-blockers         Timolol, betaxolol      Reduce aqueous          Asthma and COPD, heart block,
+                                                production              bradycardia (betaxolol is cardioselective
+                                                                        but still needs caution)
+
+  Alpha-2               Brimonidine,            Reduce production;      Allergy (high with apraclonidine, so it is
+  agonists              apraclonidine           brimonidine also        used short term), tiredness, dry mouth;
+                                                increases uveoscleral   brimonidine is contraindicated in children
+                                                outflow                 under 2 and with MAO inhibitors
+
+  Topical               Dorzolamide,            Reduce aqueous          Stinging, bitter taste; sulfonamide
+  carbonic              brinzolamide            production              allergy; care with a compromised corneal
+  anhydrase                                                             endothelium
+  inhibitors
+
+  Systemic              Acetazolamide           Reduce aqueous          Tingling, tiredness, low potassium,
+  carbonic                                      production              metabolic acidosis, kidney stones, rarely
+  anhydrase                                                             blood dyscrasias or Stevens–Johnson
+  inhibitors                                                            syndrome; sulfonamide allergy, kidney
+                                                                        disease, sickle cell disease
+
+
+
+
+Glaucoma and angle closure · Eye Academy reference note                                                              9
+

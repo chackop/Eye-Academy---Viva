@@ -1,0 +1,57 @@
+     eyeacademy                                                                                      Take-home reference note
+
+
+
+
+  Class                   Examples              How it lowers IOP               Key cautions
+
+
+  Miotics                 Pilocarpine           Contract the ciliary            Brow ache, dim vision, myopic shift; rare
+                                                muscle, pulling the             retinal detachment; avoid in uveitis and
+                                                scleral spur to open the        aqueous misdirection
+                                                meshwork; constrict the
+                                                pupil
+
+  Rho kinase              Netarsudil            Increase trabecular             Red eye, small conjunctival
+  inhibitors                                    outflow and lower               haemorrhages, corneal deposits
+                                                episcleral venous               (verticillata)
+                                                pressure
+
+  Hyperosmotic            Mannitol (IV),        Draw water out of the           Heart failure, kidney disease, fluid
+  agents                  glycerol (oral),      vitreous                        overload; glycerol in diabetes
+                          isosorbide (oral)
+
+
+
+Laser and surgery in glaucoma
+    Selective laser trabeculoplasty (SLT) treats the trabecular meshwork to increase outflow in open-
+    angle glaucoma and ocular hypertension. It can be repeated.
+    Laser peripheral iridotomy relieves pupil block in angle closure (see the iridotomy section).
+    Laser iridoplasty contracts the peripheral iris to pull it away from the angle, mainly for plateau iris or
+    an attack that does not respond to medicine.
+    Cyclodiode laser reduces aqueous production by treating the ciliary body. Conventional
+    continuous-wave treatment is used for eyes with a poor visual outlook or after other treatments have
+    failed; micropulse treatment is sometimes used earlier.
+    Trabeculectomy creates a guarded channel from the anterior chamber to a bleb under the
+    conjunctiva. Antifibrotic agents such as mitomycin C or 5-fluorouracil are used to reduce scarring. In
+    angle closure eyes the risk of aqueous misdirection is higher.
+    Tube shunts (such as Baerveldt, Ahmed or PAUL) drain aqueous to a plate placed further back on the
+    eye, often after failed trabeculectomy or in neovascular and uveitic glaucoma.
+    Minimally invasive glaucoma surgery (MIGS) uses small devices, often placed at the same time as
+    cataract surgery, for mild to moderate glaucoma.
+    Lens extraction deepens the anterior chamber and is an effective treatment for many people with
+    angle closure (see EAGLE above).
+
+
+Sources
+Salmon JF. Kanski's Clinical Ophthalmology, 10th ed. Elsevier, 2024 (chapter 11, Glaucoma). · Oxford Handbook of Ophthalmology
+(chapter 10, Glaucoma). · EyeWiki: Primary vs. Secondary Angle Closure Glaucoma; Laser Peripheral Iridotomy; Iridoplasty
+(accessed November 2026). · American Academy of Ophthalmology. Primary Angle-Closure Disease Preferred Practice Pattern. ·
+NICE NG81, Glaucoma: diagnosis and management (updated 2022). · Azuara-Blanco A et al. EAGLE trial, Lancet 2016. · He M et al.
+ZAP trial, Lancet 2019.
+
+
+
+
+Glaucoma and angle closure · Eye Academy reference note                                                                      10
+

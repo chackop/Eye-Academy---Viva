@@ -1,0 +1,25 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function validShape(d) {
+      return d.schemaVersion == 1
+          && d.phase in ['examining', 'followup', 'done']
+          && d.transcript is list
+          && d.revealed is list;
+    }
+
+    // An attempt is readable/writable only by the signed-in user who owns it.
+    match /attempts/{attemptId} {
+      allow read, delete: if request.auth != null && resource.data.uid == request.auth.uid;
+      allow create: if request.auth != null
+                    && request.resource.data.uid == request.auth.uid
+                    && validShape(request.resource.data);
+      // uid and schemaVersion can never be changed on update
+      allow update: if request.auth != null
+                    && resource.data.uid == request.auth.uid
+                    && request.resource.data.uid == resource.data.uid
+                    && request.resource.data.schemaVersion == resource.data.schemaVersion
+                    && validShape(request.resource.data);
+    }
+  }
+}
